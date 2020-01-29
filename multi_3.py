@@ -28,7 +28,7 @@ def add_dense_dropout(layer_list,
   for i in range(dense_depth):
     layer_list.append(tfkl.Dense(dense_units,
                                  dense_activation))
-    layer_list.append(tfkl.Dropout(dropout_rate))
+    #layer_list.append(tfkl.Dropout(dropout_rate))
 
   return layer_list
 
@@ -51,6 +51,7 @@ def get_compiled_model(wtf=0):
   
   return model
 
+
 # Load dataset as train and test sets
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
@@ -69,6 +70,15 @@ y_train[y_train == 3] = 1
 y_test[y_test != 3] = 0
 y_test[y_test == 3] = 1
 
+class myCallback(tf.keras.callbacks.Callback):
+  def on_epoch_end(self, epochs, logs={}):
+    val_acc = logs.get("val_acc")
+    val_loss = logs.get("val_loss")
+    if val_acc > 0.9136 and val_loss < 0.3692:
+      print("Stopping training as converging in accuracy and loss")
+      self.model.stop_training = True
+      return
+
 def unit_process():
   model = get_compiled_model()
   train_steps = len(x_train) // 128
@@ -85,7 +95,8 @@ def unit_process():
                       batch_size=128,
                       validation_data= 
                       (x_test[:test_steps * 128], y_test[:test_steps * 128]),
-                      verbose=0)
+                      verbose=0,
+                      callbacks=[myCallback()])
   result = model.predict(x_test[:test_steps * 128])
   return result, history
 

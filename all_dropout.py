@@ -104,10 +104,10 @@ model, history = unit_process()
 print(history.history["val_acc"])
 print(history.history["val_loss"])
 print("Done Training")
-n=325
+n=1000
 test_steps = len(x_test) // 128
 result = []
-for i in range(325):
+for i in range(1000):
     prediction = model.predict(x_test[:test_steps * 128])
     result.append(prediction)
 
